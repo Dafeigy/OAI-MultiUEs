@@ -1289,8 +1289,8 @@ int phy_procedures_gNB_uespec_RX(PHY_VARS_gNB *gNB, int frame_rx, int slot_rx)
                   matrix_element =malloc(sizeof(NRMatrix__RESULT));
                   nrmatrix__result__init(matrix_element);
                   // LOG_I(NR_PHY,"NOW Dealing with array index %d.\n",i * NUM_GNB_RX * NUM_UE_PORTS * NUM_PRBS  + gI * NUM_PRBS + pI);
-                  matrix_element->real = raw_array[i][gI * NUM_GNB_RX * NUM_UE_PORTS][pI][0] ;
-                  matrix_element->image = raw_array[i][gI * NUM_GNB_RX * NUM_UE_PORTS][pI][1];
+                  matrix_element->real = raw_array[i][gI][pI][0] ;
+                  matrix_element->image = raw_array[i][gI][pI][1];
                   matrix_elements[pI] = matrix_element;
                 }
                 srs_channel_matrix->prb_item = matrix_elements;
