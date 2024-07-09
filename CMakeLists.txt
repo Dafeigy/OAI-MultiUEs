@@ -2043,6 +2043,9 @@ target_link_libraries(lte-uesoftmodem PRIVATE
 # nr-softmodem
 ###################################################
 
+message("-- Start protobuf generating...")
+include_directories(${OPENAIR_DIR}/protobuf-c)
+message("-- END FOR PROTOBUF GENERATION --")
 add_executable(nr-softmodem
   ${rrc_h}
   ${nr_rrc_h}
@@ -2059,6 +2062,11 @@ add_executable(nr-softmodem
   ${OPENAIR_DIR}/common/utils/lte/prach_utils.c
   ${PHY_INTERFACE_DIR}/queue_t.c
   ${OPENAIR1_DIR}/PHY/TOOLS/phy_scope_interface.c
+
+  ${OPENAIR1_DIR}/SCHED_NR/MESSAGES/channel_matrix.pb-c.c
+  ${OPENAIR1_DIR}/SCHED_NR/MESSAGES/channel_matrix.pb-c.h
+  ${OPENAIR_DIR}/protobuf-c/protobuf-c/protobuf-c.c
+  ${OPENAIR_DIR}/protobuf-c/protobuf-c/protobuf-c.h
   )
 
 target_link_libraries(nr-softmodem PRIVATE
