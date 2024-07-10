@@ -52,56 +52,16 @@
 
 // #define DO_LOCAL
 
-
-typedef struct _a{
-     int *dat;
-}Protraw_t;
-
-pthread_mutex_t proto_mutex;
-/*
-This need to be used in pairs.
-*/
-Protraw_t* AllocateProtoArray(int num_ues, int num_matrix, int prb_items, int element){
-    Protraw_t *a = malloc(sizeof(Protraw_t) * num_ues * num_matrix * prb_items);
-    if (a==NULL){
-        printf("Error Allocation Memeroy!\n");
-    }
-    /* Allocate memory space  */
-    for(int i=0;i<num_ues;++i)
-    {
-        for(int j=0;j<num_matrix;++j)
-        {
-            for(int k=0;k<prb_items;++k)
-            {
-                a[i*num_matrix*prb_items+j*prb_items+k].dat = malloc(sizeof(int)*element);
-
-            }
-        }
-    }
-    return a;
-}
-
-void FreeProtoarray(Protraw_t *a, int num_ues, int num_matrix, int prb_items){
-        /* Delete memory space  */
-    for(int i=0;i<num_ues;++i)
-    {
-        for(int j=0;j < num_matrix;++j)
-        {
-            for(int k=0;k<prb_items;++k)
-            {
-                free(a[i * prb_items * num_matrix + j * prb_items + k].dat);
-            }
-        }
-    }
-
-    free(a);
-}
+// pthread_mutex_t proto_mutex;
 
 
 #define DO_PROTO
+
+
 #define NUM_GNB_RX 2
 #define NUM_UE_PORTS 1
 #define NUM_PRBS 104
+#define TARGET_UEs 2
 
 #ifdef DO_PROTO
   #define TRANSPORT_ADDR "192.168.3.8"
@@ -1023,7 +983,7 @@ int phy_procedures_gNB_uespec_RX(PHY_VARS_gNB *gNB, int frame_rx, int slot_rx)
     // 动态分配内存，但是我想试试直接分配了；
     // Protraw_t*raw_array = AllocateProtoArray(attach_UEs,NUM_GNB_RX*NUM_UE_PORTS,NUM_PRBS,2);
     // int* ue_id_array = malloc(sizeof(int) * attach_UEs);
-    static int raw_array[2][2][104][2];
+    static int raw_array[TARGET_UEs][NUM_GNB_RX * NUM_UE_PORTS][NUM_PRBS][2];
     static int ue_id_array[2];
     for (int i = 0; i < gNB->max_nb_srs; i++) {
       NR_gNB_SRS_t *srs = &gNB->srs[i];
