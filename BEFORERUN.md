@@ -29,6 +29,7 @@ sudo systemctl disable ufw
 
 ## gNB
 ```bash
+```bash
 sudo ip netns delete ueNameSpace2
 sudo ip link delete v-eth2
 sudo ip netns add ueNameSpace2
@@ -42,6 +43,7 @@ sudo iptables -A FORWARD -o eno1 -i upfgtp -j ACCEPT
 sudo ip netns exec ueNameSpace2 ip link set dev lo up
 sudo ip netns exec ueNameSpace2 ip addr add 10.201.1.2/24 dev v-ue2
 sudo ip netns exec ueNameSpace2 ip link set v-ue2 up
+```
 ```
 ## TO RUN GNB
 
