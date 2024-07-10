@@ -4,10 +4,23 @@ Your UHD version should be >= v4.6.0.0, otherwise a serious multi-thread schedul
 
 To start, modify MACROs in `openair1/SCHED_NR/phy_procedures_nr_gNB.c`:
 
-- #define NUM_GNB_RX 2      // Num of gNB RX ants
-- #define NUM_UE_PORTS 1    // Num of UE ports
-- #define NUM_PRBS 104      // Num of SRS PRB
-- #define TARGET_UEs 2      // Num of target UE connected 
+- `#define NUM_GNB_RX`:      Num of gNB RX ants
+
+- `#define NUM_UE_PORTS`:    Num of UE ports
+
+- `#define NUM_PRBS` :       Num of SRS PRB
+
+- `#define TARGET_UEs`:     Num of target UE connected 
+
+```bash
+for ((i=0;i<$(nproc);i++)); do sudo cpufreq-set -c $i -r -g performance; done
+sudo sysctl -w net.core.wmem_max=62500000
+sudo sysctl -w net.core.rmem_max=62500000
+sudo sysctl -w net.core.wmem_default=62500000
+sudo sysctl -w net.core.rmem_default=62500000
+sudo ethtool -G enp3s0f1 tx 4096 rx 4096
+```
+
 
 `DO_PROTO` and `DO_LOCAL` are also need to be configured. After all macros all configured, run the build command:
 
@@ -44,9 +57,10 @@ sudo ip netns exec ueNameSpace2 ip link set dev lo up
 sudo ip netns exec ueNameSpace2 ip addr add 10.201.1.2/24 dev v-ue2
 sudo ip netns exec ueNameSpace2 ip link set v-ue2 up
 ```
-```
+
 ## TO RUN GNB
 
 ```bash
 sudo ./ran_build/build/nr-softmodem -O ../o-band78-106.conf --gNBs.[0].min_rxtxtime 6 --sa --usrp-tx-thread-config 1  --continuous-tx --tun-offset 20000000
 ```
+

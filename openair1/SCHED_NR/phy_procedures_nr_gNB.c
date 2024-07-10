@@ -50,7 +50,7 @@
 #include "openair2/F1AP/f1ap_ids.h"
 #include "MESSAGES/channel_matrix.pb-c.h"
 
-// #define DO_LOCAL
+#define DO_LOCAL
 
 // pthread_mutex_t proto_mutex;
 
@@ -966,7 +966,7 @@ int phy_procedures_gNB_uespec_RX(PHY_VARS_gNB *gNB, int frame_rx, int slot_rx)
 
     if (srs) {
       if ((srs->active == 1) && (srs->frame == frame_rx) && (srs->slot == slot_rx)) { 
-        LOG_I(NR_PHY,"IN PROCESSING.\n");
+        // LOG_I(NR_PHY,"IN PROCESSING.\n");
         is_SRS = true;
         attach_UEs  = i + 1;
       }
@@ -979,7 +979,7 @@ int phy_procedures_gNB_uespec_RX(PHY_VARS_gNB *gNB, int frame_rx, int slot_rx)
 
   if (is_SRS){
     // int lock_result = pthread_mutex_trylock(&proto_mutex);
-    LOG_I(NR_PHY,"Attach UEs: %d\n",attach_UEs);
+    // LOG_I(NR_PHY,"Attach UEs: %d\n",attach_UEs);
     // 动态分配内存，但是我想试试直接分配了；
     // Protraw_t*raw_array = AllocateProtoArray(attach_UEs,NUM_GNB_RX*NUM_UE_PORTS,NUM_PRBS,2);
     // int* ue_id_array = malloc(sizeof(int) * attach_UEs);
@@ -1005,7 +1005,7 @@ int phy_procedures_gNB_uespec_RX(PHY_VARS_gNB *gNB, int frame_rx, int slot_rx)
           int8_t snr = 0;
           
           ue_id_array[i] = du_get_f1_ue_data(srs_pdu->rnti).secondary_ue;
-          LOG_A(NR_PHY,"In ue_id_array[%d], data is %d.\n", i ,du_get_f1_ue_data(srs_pdu->rnti).secondary_ue);
+          // LOG_A(NR_PHY,"In ue_id_array[%d], data is %d.\n", i ,du_get_f1_ue_data(srs_pdu->rnti).secondary_ue);
           start_meas(&gNB->generate_srs_stats);
           if (check_srs_pdu(srs_pdu, &gNB->nr_srs_info[i]->srs_pdu) == 0) {
             generate_srs_nr(srs_pdu, frame_parms, gNB->nr_srs_info[i]->srs_generated_signal, 0, gNB->nr_srs_info[i], AMP, frame_rx, slot_rx);
@@ -1155,12 +1155,52 @@ int phy_procedures_gNB_uespec_RX(PHY_VARS_gNB *gNB, int frame_rx, int slot_rx)
               // LOG_I(NR_PHY, "nr_srs_channel_iq_matrix.num_ue_srs_ports = %i\n", nr_srs_channel_iq_matrix.num_ue_srs_ports);
               // LOG_I(NR_PHY, "nr_srs_channel_iq_matrix.prg_size = %i\n", nr_srs_channel_iq_matrix.prg_size);
               // LOG_I(NR_PHY, "nr_srs_channel_iq_matrix.num_prgs = %i\n", nr_srs_channel_iq_matrix.num_prgs);
+              static int64_t ul_est_cnt = 0;
+              static char filename[100];
+              static char filepath[100];
+              static char time_filename[100];
+              static char time_filepath[100];
+
+#ifdef DO_LOCAL
+              if (ul_est_cnt == 0){
+                time_t rawtime;
+                struct tm *timeinfo;
+                time(&rawtime);
+                timeinfo = localtime(&rawtime);
+                strftime(filename, sizeof(filename), "%Y-%m-%d_%H-%M-%S-data.log", timeinfo);
+                strftime(time_filename, sizeof(time_filename), "%Y-%m-%d_%H-%M-%S-time.log", timeinfo);
+              }
+              sprintf(filepath, "../logs/%s", filename);
+              FILE *file = fopen(filepath, "a");
+                if (file == NULL) {
+                    printf("Failed to Open file.\n");
+                    return 1;
+                }
+                printf("File %s has been generated sucessfully.\n", filepath); 
+
+              sprintf(time_filepath, "../logs/%s", time_filename);
+              FILE *time_file = fopen(time_filepath, "a");
+              
+                if (time_file == NULL) {
+                    printf("Failed to Open file.\n");
+                    return 1;
+                }
+                printf("File %s has been generated sucessfully.\n", time_filepath);  
+                          
+#endif
+
+              ul_est_cnt ++;
+
               c16_t *channel_matrix16 = (c16_t *)nr_srs_channel_iq_matrix.channel_matrix;
               c8_t *channel_matrix8 = (c8_t *)nr_srs_channel_iq_matrix.channel_matrix;
-
+              struct  timeval start_time;
+              struct  timeval end_time;
+              gettimeofday(&start_time, NULL);
               for (int uI = 0; uI < nr_srs_channel_iq_matrix.num_ue_srs_ports; uI++) {
                 for (int gI = 0; gI < nr_srs_channel_iq_matrix.num_gnb_antenna_elements; gI++) {
-
+#ifdef DO_LOCAL
+                  fprintf(file,"\n====================== UE_ID: %04x UE port %d --> gNB Rx antenna %i ======================\n", du_get_f1_ue_data(srs_indication->rnti).secondary_ue, uI, gI);
+#endif
                   LOG_I(NR_PHY,"====================== UE_ID: %04x UE port %d --> gNB Rx antenna %i ======================\n", du_get_f1_ue_data(srs_indication->rnti).secondary_ue, uI, gI);
                   for (int pI = 0; pI < nr_srs_channel_iq_matrix.num_prgs; pI++) {
                     uint16_t index =
@@ -1169,19 +1209,42 @@ int phy_procedures_gNB_uespec_RX(PHY_VARS_gNB *gNB, int frame_rx, int slot_rx)
                       = nr_srs_channel_iq_matrix.normalized_iq_representation == 0 ? channel_matrix8[index].r : channel_matrix16[index].r;
                     raw_array[i][uI*nr_srs_channel_iq_matrix.num_gnb_antenna_elements + gI][pI][1]  
                       = nr_srs_channel_iq_matrix.normalized_iq_representation == 0 ? channel_matrix8[index].i : channel_matrix16[index].i;
-                    // LOG_I(NR_PHY,
-                    //       "(uI %i, gI %i, pI %i) channel_matrix --> real %i, imag %i\n",
-                    //       uI,
-                    //       gI,
-                    //       pI,
-                    //       nr_srs_channel_iq_matrix.normalized_iq_representation == 0 ? channel_matrix8[index].r : channel_matrix16[index].r,
-                    //       nr_srs_channel_iq_matrix.normalized_iq_representation == 0 ? channel_matrix8[index].i : channel_matrix16[index].i);
+                    
+#ifdef DO_LOCAL
+                    // [This is for local collection]
+                    fprintf(file,"{'re':%d,'im':%d},",
+                    nr_srs_channel_iq_matrix.normalized_iq_representation == 0 ? channel_matrix8[index].r : channel_matrix16[index].r, 
+                    nr_srs_channel_iq_matrix.normalized_iq_representation == 0 ? channel_matrix8[index].i : channel_matrix16[index].i);
+#endif             
                   }
 
                 }
               }
 
-
+              gettimeofday(&end_time, NULL);
+              // |FUNC_CNT|ThreadID|StartTime|EndTime|Duration|
+              LOG_A(NR_PHY,"----------------------------------------------------------------------------------------\n");
+              LOG_A(NR_PHY,"|  FUNC_CNT  |   UEID   |    RNTI   |      Start      |       End       |   Duration   |\n");
+              LOG_A(NR_PHY,"----------------------------------------------------------------------------------------\n");
+              LOG_A(NR_PHY,"|    %4d    |    %2d    |   0x%04x  |%d.%d|%d.%d|      %2d      |\n",
+                            ul_est_cnt, 
+                            du_get_f1_ue_data(srs_indication->rnti).secondary_ue, 
+                            srs_indication->rnti,
+                            start_time.tv_sec,start_time.tv_usec,
+                            end_time.tv_sec,end_time.tv_usec,
+                            end_time.tv_usec-start_time.tv_usec);
+              
+              LOG_A(NR_PHY,"----------------------------------------------------------------------------------------\n");
+#ifdef DO_LOCAL
+              fprintf(time_file,"'FUNC_CNT':%d,'UE_ID':%d,'RNTI':%04x,'StartTime':%d.%d,'EndTime':%d.%d}\n",
+                                  ul_est_cnt,
+                                  du_get_f1_ue_data(srs_indication->rnti).secondary_ue,
+                                  srs_indication->rnti,
+                                  start_time.tv_sec,start_time.tv_usec, 
+                                  end_time.tv_sec, end_time.tv_usec);
+              fclose(file);
+              fclose(time_file);
+#endif
               report_tlv->length = pack_nr_srs_normalized_channel_iq_matrix(&nr_srs_channel_iq_matrix, report_tlv->value, sizeof(report_tlv->value));
               stop_meas(&gNB->srs_iq_matrix_stats);
               break;
