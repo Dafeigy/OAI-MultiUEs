@@ -1,0 +1,27 @@
+#!/bin/bash
+
+clone_protobuf_c(){
+    repo_url="https://github.com/protobuf-c/protobuf-c.git"
+
+    # 执行git clone命令
+    git clone "$repo_url"
+
+    # 检查git状态以确保克隆成功
+    if [ -d "./protobuf-c" ]; then
+        echo -e "\e[32m[Protobuf] Clone Prorobuf-c successfully. \e[0m"
+    else
+        echo -e "\e[1;31mFailed to clone the repository.\e[0m"
+        echo -e "\e[33mMaybe try to set a https_proxy to clone?\e[0m"
+    fi
+}
+
+check_protobuf_c() {
+    dir_name="./protobuf-c"
+    if [[ $(ls -A "$dir_name" 2>/dev/null) ]]; then
+        echo -e "\e[32mRequirements satisfied.\e[0m"
+    else
+        clone_protobuf_c
+    fi
+}
+
+check_protobuf_c
