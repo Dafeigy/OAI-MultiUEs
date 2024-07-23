@@ -61,6 +61,6 @@ sudo ip netns exec ueNameSpace2 ip link set v-ue2 up
 ## TO RUN GNB
 
 ```bash
-sudo ./ran_build/build/nr-softmodem -O ../o-band78-106.conf --gNBs.[0].min_rxtxtime 6 --sa --usrp-tx-thread-config 1  --continuous-tx --tun-offset 20000000
+sudo ./ran_build/build/nr-softmodem -O ../o-band78-106.conf --gNBs.[0].min_rxtxtime 6 --sa --usrp-tx-thread-config 1  --continuous-tx --tun-offset 20000000 --MACRLCs.[0].ulsch_max_frame_inactivity 0
 ```
 

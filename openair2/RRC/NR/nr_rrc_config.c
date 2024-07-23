@@ -582,7 +582,7 @@ static struct NR_SRS_Resource__resourceType__periodic *configure_periodic_srs(co
   const int ul_slots_period = tdd ? tdd->nrofUplinkSlots : n_slots_frame;
   const int n_slots_period = tdd ? n_slots_frame/get_nb_periods_per_frame(tdd->dl_UL_TransmissionPeriodicity) : n_slots_frame;
   const int first_full_ul_slot = n_slots_period - ul_slots_period;
-  const int ideal_period = n_slots_period * MAX_MOBILES_PER_GNB;
+  const int ideal_period = n_slots_period * MAX_MOBILES_PER_GNB; //n_slots_period * MAX_MOBILES_PER_GNB;
   const int offset = first_full_ul_slot + (uid % ul_slots_period) + (n_slots_period * (uid / ul_slots_period));
   AssertFatal(offset < 2560, "Cannot allocate SRS configuration for uid %d, not enough resources\n", uid);
   struct NR_SRS_Resource__resourceType__periodic *periodic_srs = calloc(1,sizeof(*periodic_srs));

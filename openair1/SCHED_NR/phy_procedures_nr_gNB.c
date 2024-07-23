@@ -50,7 +50,7 @@
 #include "openair2/F1AP/f1ap_ids.h"
 #include "MESSAGES/channel_matrix.pb-c.h"
 
-#define DO_LOCAL
+// #define DO_LOCAL
 
 // pthread_mutex_t proto_mutex;
 
@@ -64,7 +64,7 @@
 #define TARGET_UEs 2
 
 #ifdef DO_PROTO
-  #define TRANSPORT_ADDR "192.168.3.8"
+  #define TRANSPORT_ADDR "192.168.0.12"
   #define TRANSPORT_PORT 7776
 #endif
 
