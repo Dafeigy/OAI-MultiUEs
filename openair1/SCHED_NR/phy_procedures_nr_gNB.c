@@ -50,7 +50,7 @@
 #include "openair2/F1AP/f1ap_ids.h"
 #include "MESSAGES/channel_matrix.pb-c.h"
 
-// #define DO_LOCAL
+#define DO_LOCAL
 
 // pthread_mutex_t proto_mutex;
 
@@ -1156,12 +1156,13 @@ int phy_procedures_gNB_uespec_RX(PHY_VARS_gNB *gNB, int frame_rx, int slot_rx)
               // LOG_I(NR_PHY, "nr_srs_channel_iq_matrix.prg_size = %i\n", nr_srs_channel_iq_matrix.prg_size);
               // LOG_I(NR_PHY, "nr_srs_channel_iq_matrix.num_prgs = %i\n", nr_srs_channel_iq_matrix.num_prgs);
               static int64_t ul_est_cnt = 0;
+
+
+#ifdef DO_LOCAL
               static char filename[100];
               static char filepath[100];
               static char time_filename[100];
               static char time_filepath[100];
-
-#ifdef DO_LOCAL
               if (ul_est_cnt == 0){
                 time_t rawtime;
                 struct tm *timeinfo;
